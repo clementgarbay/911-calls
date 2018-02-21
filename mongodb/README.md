@@ -46,9 +46,31 @@ db.calls.find({
 ### Question 2 - Compter le nombre d'appels par catégorie
 ```
 db.calls.aggregate(
-  { $unwind: '$category' }, 
-  { $group: { _id: '$category', count: { $sum: 1 } } } 
+  { $group: { _id: "$category", count: { $sum: 1 } } } 
 )
+```
+
+### Question 3 - Trouver les 3 mois ayant comptabilisés le plus d'appels
+```
+db.calls.aggregate([
+  {
+    $project: {
+      month: { $month: "$timestamp" },
+      year: { $year: "$timestamp" }
+    }
+  }, 
+  { 
+    $group: {
+      _id: {
+        month: "$month",
+        year: "$year"
+      },
+      count: { $sum: 1 }
+    }
+  },
+  { $sort: { count: -1 } },
+  { $limit : 3 }
+])
 ```
 
 Vous allez sûrement avoir besoin de vous inspirer des points suivants de la documentation :
