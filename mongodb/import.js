@@ -1,20 +1,21 @@
-var mongodb = require('mongodb');
-var csv = require('csv-parser');
-var fs = require('fs');
+const mongodb = require('mongodb');
+const csv = require('csv-parser');
+const fs = require('fs');
 
-var MongoClient = mongodb.MongoClient;
-var mongoUrl = 'mongodb://localhost:27017/911-calls';
+const MongoClient = mongodb.MongoClient;
+const mongoUrl = 'mongodb://localhost:27017/911-calls';
 
-var insertCalls = function(db, callback) {
-    var collection = db.collection('calls');
+const insertCalls = function(callsCollection, callback) {
+    const calls = [];
 
-    var calls = [];
     fs.createReadStream('../911.csv')
         .pipe(csv())
         .on('data', data => {
             calls.push({
-                lat: data.lat.trim(),
-                lng: data.lng.trim(),
+                loc : {
+                    type: "Point",
+                    coordinates: [parseFloat(data.lng.trim()), parseFloat(data.lat.trim())]
+                },
                 desc: data.desc.trim(),
                 zip: data.zip.trim(),
                 title_cat: data.title.split(':')[0].trim(),
@@ -26,14 +27,19 @@ var insertCalls = function(db, callback) {
             });
         })
         .on('end', () => {
-          collection.insertMany(calls, (err, result) => {
-            callback(result)
-          });
+            callsCollection.insertMany(calls, (err, result) => {
+                callback(result)
+            });
         });
 }
 
 MongoClient.connect(mongoUrl, (err, db) => {
-    insertCalls(db, result => {
+    const callsCollection = db.collection('calls');
+
+    callsCollection.createIndex({ loc : "2dsphere" });
+    callsCollection.createIndex({ title_descr : "text" });
+
+    insertCalls(callsCollection, result => {
         console.log(`${result.insertedCount} calls inserted`);
         db.close();
     });
