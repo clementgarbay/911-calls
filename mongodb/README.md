@@ -58,13 +58,44 @@ db.calls.aggregate([
       month: { $month: "$timestamp" },
       year: { $year: "$timestamp" }
     }
+  },
+  {
+    $project : {
+      monthYear: { 
+        $concat: [ 
+          { $substr: ["$month",0,2] },
+          "/",
+          { $substr: ["$year",0,4] } 
+        ]
+      }
+    }
   }, 
   { 
     $group: {
       _id: {
-        month: "$month",
-        year: "$year"
+        month: "$monthYear"
       },
+      count: { $sum: 1 }
+    }
+  },
+  { $sort: { count: -1 } },
+  { $limit : 3 }
+])
+```
+
+### Question 4 - Trouver le top 3 des villes avec le plus d'appels pour overdose
+```
+db.calls.aggregate([
+  {
+    $match: {
+      $text: {
+        $search : "OVERDOSE"
+      }
+    }
+  },
+  {
+    $group: {
+      _id: "$twp",
       count: { $sum: 1 }
     }
   },
