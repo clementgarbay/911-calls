@@ -92,6 +92,26 @@ GET <nom de votre index>/_count
 }
 ```
 
+### Question 4 : Trouver le top 3 des villes avec le plus d'appels pour overdose
+
+```
+{
+  "size": 0,
+  "query": {
+      "match" : {
+          "title_descr" : "OVERDOSE"
+      }
+  },
+  "aggs" : {
+        "group_by_cities": {
+          "terms" : {
+            "field" : "twp.keyword"
+          }
+        }
+  }
+}
+```
+
 ## Kibana
 
 Dans Kibana, créez un dashboard qui permet de visualiser :
