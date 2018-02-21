@@ -12,8 +12,18 @@ var insertCalls = function(db, callback) {
     fs.createReadStream('../911.csv')
         .pipe(csv())
         .on('data', data => {
-            var call = {}; // TODO créer l'objet call à partir de la ligne
-            calls.push(call);
+            calls.push({
+                lat: data.lat.trim(),
+                lng: data.lng.trim(),
+                desc: data.desc.trim(),
+                zip: data.zip.trim(),
+                title_cat: data.title.split(':')[0].trim(),
+                title_descr: data.title.split(':')[1].trim(),
+                timeStamp: data.timeStamp.trim(),
+                twp: data.twp.trim(),
+                addr: data.addr.trim(),
+                e: data.e.trim()
+            });
         })
         .on('end', () => {
           collection.insertMany(calls, (err, result) => {
