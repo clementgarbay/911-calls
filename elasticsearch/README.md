@@ -128,8 +128,10 @@ Timelion est un outil de visualisation des timeseries accessible via Kibana à l
 Réalisez le diagramme suivant :
 ![](images/timelion-chart.png)
 
-Envoyer la réponse sous la forme de la requête Timelion ci-dessous:  
+Envoyer la réponse sous la forme de la requête Timelion ci-dessous:
 
 ```
-TODO : ajouter la requête Timelion ici
+.es( index=calls*, q=title_cat:Fire, timefield=timeStamp).cusum().label(label="Last 6 months of 'Fire' calls").color(#FF5607),
+.es( index=calls*, q=title_cat:Fire, timefield=timeStamp, offset=-6M).cusum().label(label="Previous 6 months of 'Fire' calls").color(#FFB840),
+.static(6500, "Objective").color(#00A4A5).lines(fill=1)
 ```
