@@ -75,6 +75,23 @@ GET <nom de votre index>/_count
 }
 ```
 
+### Question 3 - Trouver les 3 mois ayant comptabilisés le plus d'appels 
+
+```
+{
+    "size": 0,
+    "aggs" : {
+        "calls_over_time" : {
+            "date_histogram" : {
+                "field" : "timeStamp",
+                "interval" : "month",
+                "order" : { "_count" : "desc" }
+            }
+        }
+    }
+}
+```
+
 ## Kibana
 
 Dans Kibana, créez un dashboard qui permet de visualiser :
