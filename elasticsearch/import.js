@@ -18,6 +18,10 @@ esClient.indices.create({ index: 'calls' }, (err, resp) => {
           properties: {
             location: {
               type: "geo_point"
+            },
+            timeStamp : {
+              type: "date",
+              format: "yyyy-MM-dd HH:mm:ss"
             }
           }
         }
