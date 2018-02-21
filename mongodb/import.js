@@ -1,29 +1,45 @@
-var mongodb = require('mongodb');
-var csv = require('csv-parser');
-var fs = require('fs');
+const mongodb = require('mongodb');
+const csv = require('csv-parser');
+const fs = require('fs');
 
-var MongoClient = mongodb.MongoClient;
-var mongoUrl = 'mongodb://localhost:27017/911-calls';
+const MongoClient = mongodb.MongoClient;
+const mongoUrl = 'mongodb://localhost:27017/911-calls';
 
-var insertCalls = function(db, callback) {
-    var collection = db.collection('calls');
+const insertCalls = function(callsCollection, callback) {
+    const calls = [];
 
-    var calls = [];
     fs.createReadStream('../911.csv')
         .pipe(csv())
         .on('data', data => {
-            var call = {}; // TODO créer l'objet call à partir de la ligne
-            calls.push(call);
+            calls.push({
+                location: {
+                    type: "Point",
+                    coordinates: [parseFloat(data.lng.trim()), parseFloat(data.lat.trim())]
+                },
+                desc: data.desc.trim(),
+                zip: data.zip.trim(),
+                category: data.title.split(':')[0].trim(),
+                title: data.title.split(':')[1].trim(),
+                timeStamp: data.timeStamp.trim(),
+                twp: data.twp.trim(),
+                addr: data.addr.trim(),
+                e: data.e.trim()
+            });
         })
         .on('end', () => {
-          collection.insertMany(calls, (err, result) => {
-            callback(result)
-          });
+            callsCollection.insertMany(calls, (err, result) => {
+                callback(result)
+            });
         });
 }
 
 MongoClient.connect(mongoUrl, (err, db) => {
-    insertCalls(db, result => {
+    const callsCollection = db.collection('calls');
+
+    callsCollection.createIndex({ location : "2dsphere" });
+    callsCollection.createIndex({ title : "text" });
+
+    insertCalls(callsCollection, result => {
         console.log(`${result.insertedCount} calls inserted`);
         db.close();
     });
