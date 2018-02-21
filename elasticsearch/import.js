@@ -9,6 +9,23 @@ var esClient = new elasticsearch.Client({
 
 esClient.indices.create({ index: 'calls' }, (err, resp) => {
   if (err) console.trace(err.message);
+  if (!err) {
+    esClient.indices.putMapping({
+      index: 'calls',
+      type: 'call',
+      body: {
+        call: {
+          properties: {
+            location: {
+              type: "geo_point"
+            }
+          }
+        }
+      }
+    }, (err, resp) => {
+      if (err) console.trace(err.message);
+    });
+  }
 });
 
 let calls = [];
@@ -42,8 +59,10 @@ function createBulkInsertQuery(calls) {
     const { lat,lng,desc,zip,title_cat,title_descr,timeStamp,twp,addr,e } = call;
     acc.push({ index: { _index: 'calls', _type: 'call'} });
     acc.push({ 
-      lat: lat,
-      lon: lng,
+      location: {
+        lat: lat,
+        lon: lng
+      },
       desc,
       zip,
       title,
