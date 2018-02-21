@@ -41,6 +41,40 @@ GET <nom de votre index>/_count
 }
 ```
 
+### Question 2 - Compter le nombre d'appels par catégorie :
+
+```
+{
+  "size" : 0,
+  "aggs": {
+    "total_count": {
+      "global" : {}
+    },
+    "Traffic": {
+      "filter" : {
+        "match": {
+          "title_cat": "Traffic"
+        } 
+      }
+    },
+    "Fire": {
+      "filter" : {
+        "match": {
+          "title_cat": "Fire*"
+        } 
+      }
+    },
+    "EMS": {
+      "filter" : {
+        "match": {
+          "title_cat": "EMS"
+        } 
+      }
+    }
+  }
+}
+```
+
 ## Kibana
 
 Dans Kibana, créez un dashboard qui permet de visualiser :
