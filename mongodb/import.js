@@ -20,7 +20,7 @@ const insertCalls = function(callsCollection, callback) {
                 zip: data.zip.trim(),
                 category: data.title.split(':')[0].trim(),
                 title: data.title.split(':')[1].trim(),
-                timeStamp: data.timeStamp.trim(),
+                timestamp: new Date(data.timeStamp),
                 twp: data.twp.trim(),
                 addr: data.addr.trim(),
                 e: data.e.trim()
